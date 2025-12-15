@@ -11,7 +11,7 @@ from googleapiclient.http import MediaFileUpload
 import pickle
 
 # Configuration
-TIKTOK_USERNAME = os.getenv('TIKTOK_USERNAME', 'your_tiktok_username')
+TIKTOK_USERNAME = "your_tiktok_username"  # Change this to your TikTok username
 UPLOAD_HISTORY_FILE = "uploaded_videos.json"
 CREDENTIALS_FILE = "credentials.json"  # YouTube API credentials
 TOKEN_FILE = "token.pickle"
@@ -103,7 +103,7 @@ def get_all_tiktok_videos():
         return []
 
 def download_tiktok_video(video_info):
-    """Download TikTok video using yt-dlp Python module"""
+    """Download TikTok video using yt-dlp Python module with browser impersonation"""
     video_id = video_info['id']
     output_file = os.path.join(VIDEOS_DIR, f"tiktok_{video_id}.mp4")
     
@@ -120,6 +120,9 @@ def download_tiktok_video(video_info):
         ydl_opts = {
             'outtmpl': output_file,
             'format': 'best',
+            'impersonate': 'chrome',  # Impersonate Chrome browser
+            'quiet': False,
+            'no_warnings': False,
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -129,6 +132,8 @@ def download_tiktok_video(video_info):
         return output_file
     except Exception as e:
         print(f"Error downloading video: {e}")
+        print("\nTip: Make sure curl-cffi is installed:")
+        print("pip install 'yt-dlp[curl-cffi]'")
         return None
 
 def upload_to_youtube(youtube, video_file, title, description):
@@ -141,7 +146,7 @@ def upload_to_youtube(youtube, video_file, title, description):
     body = {
         'snippet': {
             'title': title,
-            'description': description + "\n\n📱Share \n#Shorts",
+            'description': description + "\n\n📱 Share and subscribe\n#Shorts",
             'tags': ['TikTok', 'shorts', TIKTOK_USERNAME],
             'categoryId': '22'  # People & Blogs
         },
